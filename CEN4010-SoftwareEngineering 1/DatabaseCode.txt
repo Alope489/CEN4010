@@ -1,0 +1,97 @@
+CREATE TABLE USERPROFILE(
+	uemail varchar (30) NOT NULL,
+	upassword varchar (30) NOT NULL,
+	udname varchar (30) NOT NULL,
+	uaddress varchar (50),
+	uname varchar(30),
+	PRIMARY KEY (uemail),
+	CONSTRAINT unique_uemail UNIQUE (uemail),
+	CONSTRAINT unique_udname UNIQUE (udname)
+);
+
+CREATE TABLE CREDITCARDS(
+	card_number char(16) PRIMARY KEY,
+	useremail varchar(30) REFERENCES userprofile(uemail)
+	ON DELETE CASCADE,
+	CONSTRAINT unique_cnumber UNIQUE (card_number)
+);
+
+CREATE TABLE PUBLISHERS (
+	pname varchar (30) PRIMARY KEY,
+	CONSTRAINT unique_publisher UNIQUE (pname)
+);
+
+CREATE TABLE AUTHORS (
+	firstname varchar (30) NOT NULL,
+	lastname varchar (30) NOT NULL,
+	publisher varchar (30) NOT NULL,
+	biography text, 
+	CONSTRAINT unique_fname UNIQUE (firstname),
+	CONSTRAINT unique_lname UNIQUE (lastname),
+	PRIMARY KEY (firstname, lastname, publisher),
+	FOREIGN KEY (publisher) REFERENCES publishers(pname)
+	ON DELETE CASCADE
+);
+
+
+CREATE TABLE BOOKS (
+	isbn char(13) NOT NULL,
+	authorfn varchar(30) NOT NULL,
+	authorln varchar(30) NOT NULL,
+	publisher varchar (30) NOT NULL,
+	bookname varchar (30) NOT NULL,
+	book_description text,
+	price NUMERIC (6,2) NOT NULL,
+	year_published date,
+	copies_sold int DEFAULT 0,
+	genre varchar(30) NOT NULL,
+	CONSTRAINT unique_isbn UNIQUE (isbn),
+	PRIMARY KEY (isbn),
+	CONSTRAINT FK FOREIGN KEY (authorfn, authorln, publisher) 
+	REFERENCES AUTHORS(firstname,lastname,publisher)
+	ON DELETE CASCADE
+);
+
+CREATE TABLE shoppingcart(
+	uemail varchar(30) NOT NULL,
+	isbn char(13) NOT NULL,
+	CONSTRAINT FK1 FOREIGN KEY (uemail) REFERENCES userprofile(uemail),
+	CONSTRAINT FK2 FOREIGN KEY (isbn) REFERENCES books(isbn),
+	PRIMARY KEY (uemail,isbn)
+);
+
+CREATE TABLE WISHLIST(
+	listname varchar(20) NOT NULL,
+	uemail varchar(30) NOT NULL,
+	isbn char(13),
+	CONSTRAINT FK1 FOREIGN KEY (uemail) REFERENCES userprofile(uemail),
+	CONSTRAINT FK2 FOREIGN KEY (isbn) REFERENCES books(isbn)
+	ON DELETE CASCADE,	
+	PRIMARY KEY (uemail, listname)
+);
+
+CREATE TABLE USER_COMMENTS(
+	ucomment text NOT NULL,
+	date_posted date NOT NULL,
+	uemail varchar(30) NOT NULL,
+	udname varchar (30) NOT NULL,
+	isbn char(13) NOT NULL,
+	CONSTRAINT FK1 FOREIGN KEY (uemail) REFERENCES userprofile(uemail),
+	CONSTRAINT FK2 FOREIGN KEY (udname) REFERENCES userprofile(udname)
+	ON UPDATE CASCADE,
+	CONSTRAINT FK3 FOREIGN KEY (isbn) REFERENCES books(isbn),
+	PRIMARY KEY (udname,uemail,isbn)
+);
+
+CREATE TABLE USER_RATINGS(
+	rating smallint CHECK (rating < 6 AND rating > 0),
+	date_posted date NOT NULL,
+	uemail varchar(30) NOT NULL,
+	udname varchar (30) NOT NULL,
+	isbn char(13) NOT NULL,
+	CONSTRAINT FK1 FOREIGN KEY (uemail) REFERENCES userprofile(uemail),
+	CONSTRAINT FK2 FOREIGN KEY (udname) REFERENCES userprofile(udname)
+	ON UPDATE CASCADE,
+	CONSTRAINT FK3 FOREIGN KEY (isbn) REFERENCES books(isbn),
+	PRIMARY KEY (udname,uemail,isbn)
+);
